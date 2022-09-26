@@ -1,0 +1,3 @@
+#!/bin/bash
+sudo killall containerd-shim
+docker-compose down

@@ -1,0 +1,342 @@
+#!/bin/sh
+#setup_script
+export PATH=$PATH:/sbin
+NASType=""
+beta=0
+SAFE=0
+tellstick=0
+mysql=0
+ThermIQ_MQTT=0
+mosquitto=0
+selfSigned=1
+
+while [ $# > 1 ]
+do
+key="$1"
+
+case $key in
+    -s|--safe)
+    SAFE=1
+    shift
+    ;;
+    -b|--beta)
+    beta=1
+    shift
+    ;;
+    -o|--mosquitto)
+    mosquitto=1
+    shift
+    ;;
+
+    *)
+     break       # unknown option
+    ;;
+esac
+
+done
+ 
+if [ "1" = `cat /etc/issue | grep Debian | wc -l` ]
+then
+### This is Debian
+	NASType="Debian"
+fi
+
+if [ "$NASType" = "" ]
+then
+	echo "Unknown OS, please check your that you are running Debian Linux" 
+	cat /etc/issue
+	uname -a
+	exit
+fi
+
+
+if [ "11" = `cat /etc/issue | awk -F" " '{print $3}'` ]
+then
+### This is the Debian 11, Bullseye
+	OS_Version="bullseye"
+fi
+
+
+if [ "$OS_Version" = "" ]
+then
+	echo "Unknown OS, please check your system" 
+	echo "Minimum Raspbian 11 (bullseye) is supported"
+  cat /etc/issue
+	uname -a
+	exit
+fi
+
+
+if [ $beta -eq 1 ] 
+then
+	echo "#####  Downloading beta"
+fi
+
+
+
+echo "#####  Install ThermIQ on Debian 11, bullseye ########################################"
+echo "#####  $OS_Version"
+###############################################################################
+# Install apache2 php7.4 sqlite
+echo "#####  Install apache2 php 
+sqlite ########################################"
+# php7.4 is default in bullseye and we could use apt-get php, but the web-part is not verified to php>7.4
+
+apt-get -y update
+apt-get -y dist-upgrade
+apt-get -y install php7.4 php7.4-cgi php7.4-curl php7.4-mbstring php7.4-mysql php7.4-xml  php7.4-gd php7.4-sqlite3 
+# part of php: apt-get -y install apache2 libapache2-mod-php7.4
+apt-get -y install sqlite mariadb-server-10.0
+apt-get -y install recode
+apt-get -y install picocom
+
+
+
+# Set user groups
+# Do we need tind default user account or....
+#usermod -a -G www-data pi
+usermod -a -G dialout www-data
+usermod -a -G input www-data
+usermod -a -G users www-data
+echo "www-data ALL = (ALL) NOPASSWD: /usr/sbin/update_client" > /etc/sudoers.d/thermiq_update_client
+chmod 0440 /etc/sudoers.d/thermiq_update_client
+echo "www-data ALL = (ALL) NOPASSWD: /usr/sbin/mkdbtemplate" > /etc/sudoers.d/mkdbtemplate
+chmod 0440 /etc/sudoers.d/mkdbtemplate
+echo "www-data ALL = (ALL) NOPASSWD: /var/www/check_install.php" > /etc/sudoers.d/check_install
+chmod 0440 /etc/sudoers.d/check_install
+
+# Fake path to php. ThermIQ scripts are hard-coded to /opt/bin/ 
+mkdir -p /opt/bin
+cd /opt/bin/
+rm -f php stty
+ln -sf /usr/bin/php7.4 php
+
+# Create the web-root and ThermIQ config directory
+mkdir -p /var/www
+chown www-data:www-data /var/www 
+mkdir -p /opt/etc
+chown www-data:www-data /opt/etc 
+
+
+########################################
+# Setup paths and stuff needed for apache and php
+# Enable Apache module
+/usr/sbin/a2enmod proxy_fcgi setenvif
+/usr/sbin/a2enmod php7.4
+/usr/sbin/a2enmod expires
+/usr/sbin/a2enmod headers
+
+
+cd /etc/apache2/sites-available/
+rm -f thermiq.conf
+echo '<Directory /var/www/install/>
+AllowOverride All
+</Directory>' >> thermiq.conf
+cd /etc/apache2/sites-enabled/
+ln -sf ../sites-available/thermiq.conf
+
+
+# Set the default apache root
+if [ -e /etc/apache2/sites-available/000-default.conf ] 
+then
+		sed -i 's:^.*DocumentRoot.*:DocumentRoot /var/www:' /etc/apache2/sites-available/000-default.conf
+fi
+
+
+
+
+# Php
+cd /etc/php/7.4
+rm -f apache2/conf.d/30-thermiq.ini >> /dev/null
+rm -f cli/conf.d/30-thermiq.ini >> /dev/null
+rm -f cgi/conf.d/30-thermiq.ini >> /dev/null
+
+rm -f mods-available/30-thermiq.ini >> /dev/null
+rm -f /tmp/30-thermiq.ini >> /dev/null
+
+echo 'include_path = ${include_path} ":.:/usr/share/php:/usr/share/pear:/usr/bin:/usr/sbin:/var/www"' > /tmp/30-thermiq.ini
+echo 'max_execution_time = 90' >> /tmp/30-thermiq.ini
+echo 'default_charset="utf-8"' >> /tmp/30-thermiq.ini
+
+mv /tmp/30-thermiq.ini mods-available/
+chmod a+r  mods-available/30-thermiq.ini
+chmod a+r mods-available/30-thermiq.ini
+
+
+ln -sf /etc/php/7.4/mods-available/30-thermiq.ini  /etc/php/7.4/apache2/conf.d/
+ln -sf /etc/php/7.4/mods-available/30-thermiq.ini  /etc/php/7.4/cgi/conf.d/
+ln -sf /etc/php/7.4/mods-available/30-thermiq.ini  /etc/php/7.4/cli/conf.d/
+
+
+
+
+# HERE
+###############################################################################
+# Download ThermIQ files
+echo "####  Download ThermIQ files     ################################################"
+
+if [ $SAFE -eq 0 ]
+then	
+	echo "Empty /var/www/"
+	echo ""
+	rm -rf /var/www/*
+	
+	echo "Remove scripts owned by www-data"
+	cd /usr/sbin/
+	rm -f `find -P -user www-data` 2> /dev/null
+fi
+
+
+echo "Download ThermIQ files"
+echo ""
+
+
+cd /tmp/
+rm -rf thermiq
+mkdir thermiq
+cd thermiq
+rm -rf /tmp/thermiq/*
+
+wget http://www.thermiq.net/getThermIQ2.php?base_install=debian -T 900 -t 30 -O thermiq2_install.tar.gz 
+tar -xz -f thermiq2_install.tar.gz
+
+if [ -d /tmp/thermiq/html ]
+then
+	echo "ThermIQ2 files downloaded OK"
+	echo "Starting installation"
+else 
+ echo "ThermIQ2 files not found in /tmp/thermiq"
+ echo "Check your internet connection etc"
+ exit 1
+fi
+chown www-data:www-data /tmp/thermiq
+chown -R www-data:www-data /tmp/thermiq/*
+chmod 755 /tmp/thermiq/usr/sbin/*
+cd /var/www
+rm -rf /var/www/index.*
+
+
+cp -fpr /tmp/thermiq/html/* /var/www
+cp -fpr /tmp/thermiq/html/install/index.php /var/www/
+cp -fpr /tmp/thermiq/usr/sbin/* /usr/sbin/
+
+
+# Save existing ini file
+if [ -e /opt/etc/Thermiq_Linux.ini ]
+then 
+	cp -f /opt/etc/Thermiq_Linux.ini /tmp/thermiq/opt/etc/
+fi
+
+mv /tmp/thermiq/opt/etc/* /opt/etc/
+
+
+################################################################################
+# Database and paths
+echo "#####  Database and paths   #####################################################"
+echo "Database paths and paths"
+echo ""
+# Create basic structure, file linking is done each startup from script below
+mkdir -p /var/sqlite
+chown www-data:www-data /var/sqlite
+chown www-data:www-data /var/sqlite/*.db
+
+chgrp -R www-data /var/sqlite
+chmod -R g+rwx /var/sqlite
+
+
+# Remove revision number to indicate clean install
+sed -i 's:^.*res..svnRevision.*:$res['\''svnRevision'\'']=0;:' /usr/sbin/common_settings
+
+
+chown www-data:www-data /var/sqlite
+chown www-data:www-data /var/sqlite/*
+
+# Make sure that php-scripts are found also by user www-data
+sed -i 's:^.*php_scriptpath.*:php_scriptpath = /usr/sbin/:' /opt/etc/Thermiq_Linux.ini
+
+
+################################################################################
+# Add poller to the crontab. Poller aggregates data on an hourly basis
+echo "#####  Add poller to the crontab ################################################"
+cd /etc
+sed -i 's:^.*/usr/sbin/poller.*::' /etc/crontab
+echo "* * * * * www-data /usr/sbin/poller >/dev/null 2>&1" >> /etc/crontab
+
+
+echo "#####  Restart web-server ################################"
+systemctl restart apache2
+
+################################################################################
+# Setup of mosquitto server
+# 
+if [ $mosquitto -eq 1 ]
+then	
+echo "#####  Installing mosquitto-MQTTserver ################################"
+# https://hobbytronics.pk/installing-mosquitto-broker-on-raspberry-pi/
+
+	apt-get -y install mosquitto mosquitto-clients
+	cd /etc/mosquitto/conf.d/
+	mv -f mosquitto.conf mosquitto.conf_`date "+%Y%m%d_%H%M"`
+	echo 'allow_anonymous false
+password_file /etc/mosquitto/passwd
+
+# Plain MQTT protocol over local network
+listener 1883
+
+# End of plain MQTT configuration
+
+# MQTT over TLS/SSL
+listener 8883
+cafile /etc/mosquitto/certs/ca.crt
+certfile /etc/mosquitto/certs/debian.crt
+keyfile /etc/mosquitto/certs/debian.key
+tls_version tlsv1.2
+
+# End of MQTT over TLS/SLL configuration
+' > mosquitto.conf
+	# Change hostname in conf file
+	sed -i 's:debian:'`hostname`':' mosquitto.conf
+	
+	if [ $selfSigned = 1 ] 
+	then
+		echo "#####  Generating self signed certs for mosquitto-MQTTserver ################################"
+		# https://primalcortex.wordpress.com/2016/03/31/mqtt-mosquitto-broker-with-ssltls-transport-security/
+		# Private keys will be generated in /root/certs/ and moved over to mosquitto/certs
+		cd 
+		mkdir certs
+		chmod 700 certs
+		cd certs
+		generate-CA.sh
+		cp -f *.crt `hostname`.key /etc/mosquitto/certs/
+		chown mosquitto:mosquitto /etc/mosquitto/certs/*
+	fi
+
+	echo "#####  Restarting mosquitto MQTT-server ####################"
+	# Start daemon
+	systemctl daemon-reload
+	systemctl enable mosquitto
+	systemctl restart mosquitto.service
+fi
+################################################################################
+# Setup of ThermIQ_MQTT_listener service
+# 
+
+echo "#####  Installing ThermIQ_MQTT_listener service ################################"
+cp -f /tmp/thermiq/usr/sbin/ThermIQ_MQTT_listener.service /etc/systemd/system/
+chmod a-x /etc/systemd/system/ThermIQ_MQTT_listener.service
+
+echo "www-data ALL = NOPASSWD: /usr/sbin/restart_MQTT_listener" >> /etc/sudoers.d/thermiq_MQTT_listener
+chmod 0440 /etc/sudoers.d/thermiq_MQTT_listener
+
+systemctl daemon-reload
+systemctl enable ThermIQ_MQTT_listener
+systemctl restart ThermIQ_MQTT_listener
+
+## dubug with
+## journalctl -xe
+## cat /var/log/messages 
+## cat /var/log/syslog
+
+
+################################################################################
+echo "#####  Done ! ################################"
