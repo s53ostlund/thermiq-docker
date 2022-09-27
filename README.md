@@ -26,7 +26,6 @@ export USERNAME=uuuuu
 export PASSWORD=pppppp
 docker build --build-arg password=${PASSWORD} --build-arg username=${USERNAME} -t thermiq-docker .
 ```
-
 ### Now configure the server
 
 ```
@@ -49,6 +48,10 @@ Now open up http://localhost:8888
 	- insert PASSWORD  and click check
 	- Remove password protection
 - Press **Start**
+
+### Configure the ThermIQ_MQTT card
+
+- follow the instructions from thermiq.net until you get the card working on your local network. 
 
 ### Configure MQTT_Explorer [MQTT Explorer](https://mqtt-explorer.com/) 
 
