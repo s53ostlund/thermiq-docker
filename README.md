@@ -9,6 +9,9 @@ Some things to note:
 	- Since ports 8888 and 9883 are used the mapped ports rather than the traditional ports are used when accessing services inside the container. 
 	- In particular, seeing output from ThermIQ in MQTT Explorer (below) will  use 9883 instead of 1883
 	- The poller and card will be seen outside the container  on port 8888 instead of port 80 
+- You will be constructing a docker container that you will configure and save.
+	- the sqlite databases will be mounted as persistent volumes in the host host directory pv/sqlite  so reboots will use the latest data
+	- there is a scratch /tmp/scratch in the container which maps to pv/scratch on the host where you can move files in and out of the container
 	
 ## Docker Install
 
@@ -123,8 +126,10 @@ Got to http://localhost:8888 and login
 - check that Thermia -> Overview registers are populated. if not
 	- Make sure your card is working with MQTTExplorer. Get that working before coming back here
 	- Read off the ClientName from the MQTTExplorer messages
-	- Check over MQTTNode in the ThermIQ ;   **it ends with -bb ; don't accept the default** ; go back to Update and Install to fix
-	- Check permissions on sqlite , it should be writable and owned by www-data:www-data
+	- Check over MQTTNode in the ThermIQ ;   
+		- it ends with -bb  
+		- don't blindly accept the default; it was incorretly preconfigured for me
+	- Check permissions on sqlite  in the container , it should be writable and owned by www-data:www-data
 - check that you can write to register for instance Indoor target temp
 	- If you appear to be able to write to the register but the register is not saved on refresh
 		- check over the MQTTNode in poller settings; don't forget to restart listeners in the docker shell
