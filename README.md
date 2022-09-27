@@ -118,7 +118,7 @@ Got to http://localhost:8888 and login
 
 #### Create  the active image
 
-The configured image will be created by creating a new image from the running container.
+Once you have the docker image working, a preconfigured image will be created by cloing  a new image from the running container.
 
 ```
 docker ps # read off CONTAINER_ID ; mine was  4c0bc1b30bc4
