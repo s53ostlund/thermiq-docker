@@ -163,3 +163,17 @@ Assuming the name of the container is **thermiq-docker_thermiq_1**
 docker update --restart=always thermiq-docker_thermiq_1
 ```
 
+### Backup considerations
+
+- The directory ```pv/sqlite`` contains the sqlite database files and should be regularly backed up
+- Save your configured docker file
+	- as tarfile: 
+		- sudo docker save -o thermiq-docker-configured.tgz thermiq-docker:configured
+	- on docker-hub
+		- docker login
+		- docker tag thermiq-docker:configured mydockername/thermiq-docker:configured
+		- docker push mydockername/thermiq-docker:configured
+		
+	
+
+
