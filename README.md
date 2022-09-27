@@ -40,6 +40,29 @@ Now open up http://localhost:8888
 	- Remove password protection
 - Press **Start**
 
+### Configure MQTT_Explorer [MQTT Explorer](https://mqtt-explorer.com/) 
+
+Thanks Thomas Nordquist!
+
+You should definitely get MQTT_Explorer working with your card. It is less fragile than ThermIQ
+
+- MQTT Connection paramters
+	- Protocoll mqtt://
+	- Host: localhost or IP
+	- Port: 9883 **This is not a mistake**  MQTT is listening to 1883 inside the container which is mapped to 9883 on localhost
+	- Username and password according to USERNAME and PASSWORD
+	- Save
+	- Connect
+- After a minute, ThermIQ should have a message; 
+	- Note the MQTT_NODE probably **ThermIQ-mqtt-bb** 
+	- Open the drobdown and note the Client_name  which is needed in the next step
+- If you receiving  register data you are in good shape and your card is communicating with MQTT_Server
+- If you cannot get any message from ThermIQ your card is not communicating with MQTT and you must fix that.
+	- Weak wifi?
+	- Misconfigured card? Follow instructions for installing your card in your wifi network
+- If you are getting a message in MQTT Explorer  but no register data, your card perhaps your card is not plugged in
+- If your card is not plugged in you can continue to the next steps but you won't see any register data at all. 
+
 ### Configure poller
 
 got to http://localhost:8888
