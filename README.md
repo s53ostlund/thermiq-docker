@@ -148,3 +148,11 @@ docker-compose up -d
 
 - Check  localhost:8888 
 
+### Make containter restart after host reboot
+
+Assuming the name of the container is **thermiq-docker_thermiq_1**
+
+```
+docker update --restart=always thermiq-docker_thermiq_1
+```
+
