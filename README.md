@@ -10,8 +10,8 @@ Some things to note:
 	- In particular, seeing output from ThermIQ in MQTT Explorer (below) will  use 9883 instead of 1883
 	- The poller and card will be seen outside the container  on port 8888 instead of port 80 
 - You will be constructing a docker container that you will configure and save.
-	- the sqlite databases will be mounted as persistent volumes in the host host directory pv/sqlite  so reboots will use the latest data
-	- there is a scratch /tmp/scratch in the container which maps to pv/scratch on the host where you can move files in and out of the container
+	- the sqlite directory /var/sqlite will be mounted as persistent volumes /pv/sqlite in the host so that data is retained between reboots
+	- there is a scratch /tmp/scratch in the container which maps to pv/scratch on the host where you can move files between the container and host
 	
 ## Docker Install
 
