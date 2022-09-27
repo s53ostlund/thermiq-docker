@@ -177,3 +177,16 @@ docker update --restart=always thermiq-docker_thermiq_1
 	
 
 
+### Migrating to another host or restoring from backup (not tested)
+
+- ```git clone  git@github.com:s53ostlund/thermiq-docker.git```
+- ```cd thermiq-docker```
+- ```docker pull mydockername/thermiq-docker:configured```
+- ```docker tag mydockername/thermiq-docker:configured thermiq-docker:configured```
+- Now copy backed up versions of ```sqlite/*.db``` into ```pv/sqlite```
+- ```chmod a+w pv/sqlite pv/sqlite/*```
+- If failure, perhaps you need to change ownership to www-data:www-data I am not sure
+- ```docker-compose up -d```
+- When things are working again 
+	- ```docker update --restart=always thermiq-docker_thermiq_1```
+
