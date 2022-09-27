@@ -84,8 +84,8 @@ You should definitely get MQTT_Explorer working with your card. It is less fragi
 - If you cannot get any message from ThermIQ your card is not communicating with MQTT and you must fix that.
 	- Weak wifi?
 	- Misconfigured card? Follow instructions for installing your card in your wifi network
-- If you are getting a message in MQTT Explorer  but no register data, your card perhaps your card is not plugged in
-- If your card is not plugged in you can continue to the next steps but you won't see any register data at all. 
+- If you are getting a message from ThermQI  in MQTT Explorer  but no register data,  perhaps your card is not plugged in to the heatpump.
+- If your card is not plugged in to the heatpump you can continue to the next steps but you won't see any register data at all and you won't be able to tell if the database is being accessed properly. 
 
 ### Configure poller
 
