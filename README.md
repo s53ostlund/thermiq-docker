@@ -1,11 +1,13 @@
 # thermiq-docker
 
-#####  Before beginning have on hand 
-  * Your Order Email
-  * Your 16 digit license key XXXXXXX
-  * Your MQTTTServer_User ==  USERNAME
-  * Your MQTTServer_PW == PASSWORD
-  * Your MQTTClient_Name = ThermIQ_XXXXXXXXX
+## Install
+
+###  Before beginning have on hand 
+  - Your Order Email
+  - Your 16 digit license key XXXXXXX
+  - Choose a USERNAME to be used as MQTTTServer_User
+  - Choose a PASSWORD to be used as MQTTServer_PW 
+  - Find your  MQTTClient_Name = ThermIQ_XXXXXXXXX 
 
 ### Get started and build the docker base image
 
@@ -16,27 +18,28 @@ docker build --build-arg password=${PASSWORD} --build-arg username=${USERNAME} -
 ```
 
 ### Now configure the server
+
 ```
 docker-compose -f docker-compose-configure.yaml up 
 ```
 
-    * Now open up http://localhost:8888 
-    * Initial Config  ** sqlite ** should be selected 
-    * Press ** Download ThermIQ **
-	* insert Order Email and click  checkmark
-	* insert Licence key  and click checkmark
-    * press Download and install released version (twice!)
-    * press Press User Database -> Update User datbase
-	* If necessary chmod a+w on pv/sqlite and pv/sqlite/*
-    * press Main Database -> Create and init main Database or Update if it exists
-    * skip Dropbox   
-    * Secure installation 
-	* insert USERNAME and click check
-	* insert PASSWORD  and click check
-	* Remove password protection
-    * Press Start
+- Now open up http://localhost:8888 
+- Initial Config  ** sqlite ** should be selected 
+-  Press ** Download ThermIQ **
+	--  insert Order Email and click  checkmark
+	--  insert Licence key  and click checkmark
+ 
+- press Download and install released version (twice!)
+- press Press User Database -> Update User datbase
+	-- If necessary chmod a+w on pv/sqlite and pv/sqlite/*
+- press Main Database -> Create and init main Database or Update if it exists
+- skip Dropbox   
+- Secure installation 
+	-- insert USERNAME and click check
+	-- insert PASSWORD  and click check
+	-- Remove password protection
+-- Press Start
 
-```
 ### Configure poller
 
 got to http://localhost:8888
