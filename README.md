@@ -56,6 +56,7 @@ Thanks Thomas Nordquist!
 
 You should definitely get MQTT_Explorer working with your card. It is less fragile than ThermIQ
 
+
 - MQTT Connection paramters
 	- Protocoll mqtt://
 	- Host: localhost or IP
@@ -66,6 +67,16 @@ You should definitely get MQTT_Explorer working with your card. It is less fragi
 - After a minute, ThermIQ should have a message; 
 	- Note the MQTT_NODE probably **ThermIQ-mqtt-bb** 
 	- Open the drobdown and note the Client_name  which is needed in the next step
+- If nothing is working try test 
+	- test.mosquitto.org
+	- protocoll mqtt://
+	- host: test.mosquitto.org
+	- port: 1833 **Yes 1883 here since this is not addressing the container**
+	- username: wildcard
+	- password: leave blank
+	- press Save
+	- press Connect
+	- a bunch of messages should appear.
 - If you receiving  register data you are in good shape and your card is communicating with MQTT_Server
 - If you cannot get any message from ThermIQ your card is not communicating with MQTT and you must fix that.
 	- Weak wifi?
