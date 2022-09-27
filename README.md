@@ -7,8 +7,8 @@ Some things to note:
 - The container is running apache on port 80 and MQTT on port 1883 **inside the container**
 - The ports 80 and 1883 in the container is mapped to 8888 and 9883 on localhost to not conflict with other services on localhost
 	- Since ports 8888 and 9883 are used the mapped ports rather than the traditional ports are used when accessing services inside the container. 
-	- In particular the install of MQTT Explorer (below) will not use the standard port
-	- The poller and card will not use standard port but will use 8888 instead
+	- In particular, seeing output from ThermIQ in MQTT Explorer (below) will  use 9883 instead of 1883
+	- The poller and card will be seen outside the container  on port 8888 instead of port 80 
 	
 ## Docker Install
 

@@ -3,11 +3,10 @@ services:
   thermiq:
     image: thermiq-docker
     volumes: 
-      - /home/ostlund/WWW/thermiq-docker/pv/scratch:/tmp/scratch
-      - /home/ostlund/WWW/thermiq-docker/pv/sqlite:/var/sqlite 
+      - ./pv/scratch:/tmp/scratch
+      - ./pv/sqlite:/var/sqlite 
     ports:
       - "8888:80"
       - "9883:1883"
-    #command: sh -c "/etc/init.d/apache2 start && systemctl start mosquitto && systemctl restart ThermIQ*_listener* && sudo tail -f /var/log/apache2/access.log "
     command: sh -c "/etc/init.d/apache2 start && systemctl start mosquitto && sudo tail -f /var/log/apache2/access.log "
     tty: true
