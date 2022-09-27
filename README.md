@@ -98,8 +98,10 @@ got to http://localhost:8888
 	- MQTTServer_User = USERNAME
 	- MQTTServer_PW = PASSWORD
 	- MQTTServer_Cafile = Empty
-	- MQTTClient_Name = Get from MQTT Explorer ThermIQ_30AEA46ABBB8
-	- MQTTNode  = ThermIQ/ThermIQ-mqtt-bb  **Note this is prefilled out incorrectly the last -bb is missing**
+	- MQTTClient_Name = Get from MQTT Explorer 
+		- **Mine was ThermIQ_30AEA46ABBB8 ; yours will be somehting else**
+	- MQTTNode  = ThermIQ/ThermIQ-mqtt-bb  
+		- **Note this is prefilled out incorrectly the last -bb is missing**
 	- Action -> Enable both boxes
 
 ### Now configure server poller
