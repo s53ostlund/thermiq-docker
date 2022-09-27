@@ -17,7 +17,7 @@ Some things to note:
   - Your 16 digit license key XXXXXXX
   - Choose a USERNAME to be used as MQTTTServer_User
   - Choose a PASSWORD to be used as MQTTServer_PW 
-  - Find your  MQTTClient_Name = ThermIQ_XXXXXXXXX 
+ 
 
 ### Get started and build the docker base image
 
