@@ -1,3 +1,16 @@
+# Addendum 2022-10-10
+
+- The file ``/etc/systemd/system/ThermIQ_MQTT_listener.service`` needs a flag -p when starting the listener
+	- Line 11 should read ``ExecStart=/usr/sbin/ThermIQ_MQTT_listener -p`` 
+- The service ThermIQ_MQTT_listener must be restarted after editing this line
+	- ``sudo systemctl restart ThermIQ*_listener*``
+- If you fix this by  hand  you should save the image 
+	- ``docker ps # read off CONTAINER_ID ; mine was  4c0bc1b30bc4``
+	- ``docker tag thermiq-docker:configured thermiq-docker:configured-old``
+	- ``docker commit  d7624b7a35bc thermiq-docker:configured``
+
+
+
 # thermiq-docker
 
 Since I had a perfectly good Intel NUC at home, I did not want to invest in additional hardware and buy a Raspberry PI. This describes installing [Thermiq-MQTT](https://thermiq.net) using docker running on my Intel NUC.  It finally worked just fine. Here is my documentation of the process. 
