@@ -122,6 +122,8 @@ got to http://localhost:8888
 
 ### Now configure server poller
 
+- Important; fix the service file in the addendum at the top of the README before proceeding
+
 ```
 docker  exec -it thermiq-docker_thermiq_1 /bin/bash
 sudo systemctl restart ThermIQ*_listener*

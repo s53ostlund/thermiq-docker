@@ -2,6 +2,10 @@
 import paho.mqtt.client as mqtt
 import time
 import json
+import os
+
+USERNAME = os.environ.get('USERNAME')
+PASSWORD = os.environ.get('PASSWORD')
 
 def on_message(client, userdata, message):
     msg = str( message.payload.decode("utf-8"))
@@ -21,7 +25,7 @@ client = mqtt.Client("P1")
 topic = "ThermIQ/ThermIQ-mqtt-bb/data"
 client.on_message=on_message 
 client.on_log = on_log
-client.username_pw_set(username="thermiq",password="lissner")
+client.username_pw_set(username=USERNAME ,password=PASSWORD)
 client.connect("localhost",port=9883,keepalive=60,bind_address="")
 client.loop_start()
 client.publish("ThermIQ/ThermIQ-mqtt-bb/WRITE",'{"d68":39}')
