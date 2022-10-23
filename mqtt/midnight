@@ -1,0 +1,11 @@
+#!/bin/bash
+cd /home/ostlund/WWW/thermiq-docker/mqtt
+source env/bin/activate
+echo `which python`
+export USERNAME=thermiq
+export PASSWORD=lissner
+export ROOM=19
+export HOTWSTART=45
+export HOTWSTOP=55
+export REDUCTION=0
+python set_registers.py  
